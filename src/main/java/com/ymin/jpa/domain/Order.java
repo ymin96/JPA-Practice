@@ -24,16 +24,16 @@ public class Order {
     private Member member;  // 주문 회원
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItem> orderItems = new ArrayList<OrderItem>();
+    private List<OrderItem> orderItems = new ArrayList<OrderItem>(); // 주문 상품 목록
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "DELIVERY_ID")
     private Delivery delivery;  // 배송정보
 
-    private Date orderDate;
+    private Date orderDate; //주문 날자
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private OrderStatus status; //주문 상태
 
     // 연관관계 메소드 //
     public void setMember(Member member){
@@ -49,5 +49,41 @@ public class Order {
     public void setDelivery(Delivery delivery){
         this.delivery = delivery;
         delivery.setOrder(this);
+    }
+
+    //생성 메소드//
+    public static Order createOrder(Member member, Delivery delivery, OrderItem... orderItems){
+        Order order = new Order();
+        order.setMember(member);
+        order.setDelivery(delivery);
+        for(OrderItem orderItem: orderItems){
+            order.addOrderItem(orderItem);
+        }
+        order.setStatus(OrderStatus.ORDER);
+        order.setOrderDate(new Date());
+        return order;
+    }
+
+    //비즈니스 로직//
+    /*주문 취소*/
+    public void cancel(){
+        if(delivery.getStatus() == DeliveryStatus.COMP){
+            throw new RuntimeException("이미 배송완료된 상품은 취소가 불가능합니다.");
+        }
+
+        this.setStatus(OrderStatus.CANCEL);
+        for(OrderItem orderItem: orderItems){
+            orderItem.cancel();
+        }
+    }
+
+    //조회 로직//
+    /** 전체 주문 가격 조회 **/
+    public int getTotalPrice(){
+        int totalPrice = 0;
+        for(OrderItem orderItem: orderItems){
+            totalPrice += orderItem.getTotalPrice();
+        }
+        return totalPrice;
     }
 }

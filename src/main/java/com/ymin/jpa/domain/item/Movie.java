@@ -1,6 +1,5 @@
 package com.ymin.jpa.domain.item;
 
-import com.ymin.jpa.domain.Item;
 import lombok.Getter;
 import lombok.Setter;
 
