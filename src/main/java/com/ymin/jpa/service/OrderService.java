@@ -27,7 +27,7 @@ public class OrderService {
     public Long order(Long memberId, Long itemId, int count) {
 
         //엔티티 조회
-        Member member = memberRepository.findOne(memberId);
+        Member member = memberRepository.findById(memberId).orElse(null);
         Item item = itemService.findOne(itemId);
 
         //배송정보 생성
@@ -45,13 +45,13 @@ public class OrderService {
     /**주문 취소*/
     public void cancelOrder(Long orderId){
         //주문 엔티티 조회
-        Order order = orderRepository.findOne(orderId);
+        Order order = orderRepository.findById(orderId).orElse(null);
         //주문 취소
         order.cancel();
     }
 
     /**주문 검색*/
     public List<Order> findOrders(OrderSearch orderSearch){
-        return orderRepository.findAll(orderSearch);
+        return orderRepository.findAll(orderSearch.toSpecification());
     }
 }
